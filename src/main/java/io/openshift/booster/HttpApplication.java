@@ -4,7 +4,6 @@ import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -31,46 +30,52 @@ public class HttpApplication extends AbstractVerticle {
 
     @Override
     public void start() {
-        setUpConfiguration();
+
+        //setLogLevel("DEBUG");
 
         Router router = Router.router(vertx);
         router.get("/api/greeting").handler(this::greeting);
         router.get("/health").handler(rc -> rc.response().end("OK"));
         router.get("/").handler(StaticHandler.create());
+           
+        ConfigStoreOptions appStore = new ConfigStoreOptions()
+            .setType("configmap")
+            .setFormat("yaml")
+            .setConfig(new JsonObject()
+                .put("name", "app-config")
+                .put("key", "app-config.yml"));
+        
+        // Check configmap every 60 seconds, default is 5
+        ConfigRetrieverOptions options = new ConfigRetrieverOptions()
+            .setScanPeriod(60000)
+            .addStore(appStore);
+                
+        conf = ConfigRetriever.create(vertx, options);
+        conf.getConfig(json -> {
+            config = json.result();
+            setLogLevel(config.getString("level", "INFO")); 
+            LOGGER.info("Configuration retrieved: {}", config);
+            message = config.getString("message", "Hello, %s");
+            Integer port = config.getInteger("http.port", 8080);
+            vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(port);
+            LOGGER.info("Server start at: {}", port);
+        });                   
+        
+        // The Configuration Retriever periodically retrieves the configuration, 
+        // and if the outcome is different from the current one, your application can be reconfigured.
+        // By default, the configuration is reloaded every 5 seconds
+        conf.listen(change -> {
+            // Previous configuration
+            //JsonObject previous = change.getPreviousConfiguration();
+            // New configuration
+            config = change.getNewConfiguration();
+            //config = conf;
+            LOGGER.info("New configuration: {}", config.getString("message"));
+            setLogLevel(config.getString("level", "INFO"));
+          });
 
-        retrieveMessageTemplateFromConfiguration()
-            .setHandler(ar -> {
-                // Once retrieved, store it and start the HTTP server.
-                message = ar.result();
-                vertx
-                    .createHttpServer()
-                    .requestHandler(router::accept)
-                    .listen(
-                        // Retrieve the port from the configuration,
-                        // default to 8080.
-                        config().getInteger("http.port", 8080));
-
-            });
-
-        // It should use the retrieve.listen method, however it does not catch the deletion of the config map.
-        // https://github.com/vert-x3/vertx-config/issues/7
-        vertx.setPeriodic(2000, l -> {
-            conf.getConfig(ar -> {
-                if (ar.succeeded()) {
-                    if (config == null || !config.encode().equals(ar.result().encode())) {
-                        config = ar.result();
-                        LOGGER.info("New configuration retrieved: {}",
-                            ar.result().getString("message"));
-                        message = ar.result().getString("message");
-                        String level = ar.result().getString("level", "INFO");
-                        LOGGER.info("New log level: {}", level);
-                        setLogLevel(level);
-                    }
-                } else {
-                    message = null;
-                }
-            });
-        });
     }
 
     private void setLogLevel(String level) {
@@ -102,24 +107,4 @@ public class HttpApplication extends AbstractVerticle {
             .end(response.encodePrettily());
     }
 
-    private Future<String> retrieveMessageTemplateFromConfiguration() {
-        Future<String> future = Future.future();
-        conf.getConfig(ar ->
-            future.handle(ar
-                .map(json -> json.getString("message"))
-                .otherwise(t -> null)));
-        return future;
-    }
-
-    private void setUpConfiguration() {
-        ConfigStoreOptions appStore = new ConfigStoreOptions();
-        appStore.setType("configmap")
-            .setFormat("yaml")
-            .setConfig(new JsonObject()
-                .put("name", "app-config")
-                .put("key", "app-config.yml"));
-
-        conf = ConfigRetriever.create(vertx, new ConfigRetrieverOptions()
-            .addStore(appStore));
-    }
 }
