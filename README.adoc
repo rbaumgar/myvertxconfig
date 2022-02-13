@@ -30,8 +30,11 @@ $ curl http://localhost:8080/api/greeting?name=Sarah
 {"content":"Hello, Sarah!"}
 ----
 
-== Running the Booster on a Single-node OpenShift Cluster
-If you have a single-node OpenShift cluster, such as Minishift or the Red Hat Container Development Kit, link:http://appdev.openshift.io/docs/minishift-installation.html[installed and running], you can also deploy your booster there. A single-node OpenShift cluster provides you with access to a cloud environment that is similar to a production environment.
+== Running the Booster on a OpenShift Cluster
+If you have a OpenShift cluster, such as CDK or the Red Hat Developer Sandbox, link:https://developers.redhat.com/developer-sandbox[Welcome to the Developer Sandbox for Red Hat OpenShift]. 
+This example uses now a new created ServiceAccount (myvertxconfig-sa). 
+This SA has a rolebinding(myvertxconfig-bind) to the role(myvertxconfig-role).
+This role enables only access to the configmaps in the same namespace.
 
 To deploy your booster to a running single-node OpenShift cluster:
 
@@ -42,13 +45,6 @@ To deploy your booster to a running single-node OpenShift cluster:
 $ oc login -u developer -p developer
 
 $ oc new-project MY_PROJECT_NAME
-----
-
-. (No longer needed)Be sure that view access rights for the service account are added before deploying your booster.
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ oc policy add-role-to-user view -n $(oc project -q) -z default
 ----
 
 . Navigate to the root directory of your booster.
@@ -67,12 +63,6 @@ $ oc create configmap app-config --from-file=app-config.yml
 $ mvn clean fabric8:deploy -Popenshift
 ----
 
-. Example uses ServiceAccount
-
-This example uses now a new created ServiceAccount (myvertxconfig-sa). 
-This SA has a rolebinding(myvertxconfig-bind) to the role(myvertxconfig-role).
-This role enables only access to the configmaps in the same namespace.
-
 . Undeploy your booster.
 +
 [source,bash,options="nowrap",subs="attributes+"]
@@ -89,7 +79,7 @@ To interact with your booster while it's running on a Single-node OpenShift Clus
 $ export URL=`oc get route myvertxconfig -o jsonpath={$.spec.host}`
 $ echo $URL
 
-myvertxconfig-MY_PROJECT_NAME.LOCAL_OPENSHIFT_HOSTNAME
+myvertxconfig-MY_PROJECT_NAME.OPENSHIFT_HOSTNAME
 ----
 
 
