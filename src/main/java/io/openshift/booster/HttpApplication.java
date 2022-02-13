@@ -45,9 +45,9 @@ public class HttpApplication extends AbstractVerticle {
                 .put("name", "app-config")
                 .put("key", "app-config.yml"));
         
-        // Check configmap every 60 seconds, default is 5
+        // Check configmap every 20 seconds, default is 5
         ConfigRetrieverOptions options = new ConfigRetrieverOptions()
-            .setScanPeriod(60000)
+            .setScanPeriod(20000)
             .addStore(appStore);
                 
         conf = ConfigRetriever.create(vertx, options);
@@ -73,6 +73,7 @@ public class HttpApplication extends AbstractVerticle {
             config = change.getNewConfiguration();
             //config = conf;
             LOGGER.info("New configuration: {}", config.getString("message"));
+            message = config.getString("message", "Hello, %s");
             setLogLevel(config.getString("level", "INFO"));
           });
 

@@ -73,6 +73,12 @@ This example uses now a new created ServiceAccount (myvertxconfig-sa).
 This SA has a rolebinding(myvertxconfig-bind) to the role(myvertxconfig-role).
 This role enables only access to the configmaps in the same namespace.
 
+. Undeploy your booster.
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+$ mvn fabric8:undeploy -Popenshift
+----
 
 == Interacting with the Booster on a Single-node OpenShift Cluster
 
@@ -96,13 +102,6 @@ $ curl $URL/api/greeting
 
 $ curl $URL/api/greeting?name=Sarah
 {"content":"Hello Sarah from a ConfigMap!"}
-----
-
-. Undeploy your booster.
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ mvn fabric8:undeploy -Popenshift
 ----
 
 == More Information
