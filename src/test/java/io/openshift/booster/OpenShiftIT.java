@@ -2,6 +2,7 @@ package io.openshift.booster;
 
 import com.jayway.restassured.response.Response;
 import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.openshift.booster.test.OpenShiftTestAssistant;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -61,9 +62,14 @@ public class OpenShiftIT {
         ConfigMap map = assistant.client().configMaps().withName("app-config").get();
         assertThat(map).isNotNull();
 
-        assistant.client().configMaps().withName("app-config").edit()
+/*        assistant.client().configMaps().withName("app-config").edit()
             .addToData("app-config.yml", "message : \"Bonjour, %s from a ConfigMap !\"")
-            .done();
+            .done(); */
+        
+        assistant.client().configMaps().withName("app-config").edit(
+            c -> new ConfigMapBuilder(c).addToData("app-config.yml", "message : \"Bonjour, %s from a ConfigMap !\"")
+            .build()
+            );
 
         await().atMost(5, TimeUnit.MINUTES).catchUncaughtExceptions().until(() -> {
             Response response = get("/api/greeting");

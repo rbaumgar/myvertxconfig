@@ -4,18 +4,15 @@ import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.impl.logging.Logger;
+import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.StaticHandler;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
+
 
 /**
  *
@@ -25,7 +22,8 @@ public class HttpApplication extends AbstractVerticle {
     private ConfigRetriever conf;
     private String message;
 
-    private static final Logger LOGGER = LogManager.getLogger(HttpApplication.class);
+    Logger LOGGER = LoggerFactory.getLogger(this.getClass().getSimpleName());
+
     private JsonObject config;
 
     @Override
@@ -53,14 +51,14 @@ public class HttpApplication extends AbstractVerticle {
         conf = ConfigRetriever.create(vertx, options);
         conf.getConfig(json -> {
             config = json.result();
-            setLogLevel(config.getString("level", "INFO")); 
-            LOGGER.info("Configuration retrieved: {}", config);
+            //setLogLevel(config.getString("level", "INFO")); 
+            LOGGER.info("Configuration retrieved: " + config);
             message = config.getString("message", "Hello, %s");
             Integer port = config.getInteger("http.port", 8080);
             vertx.createHttpServer()
                 .requestHandler(router)
                 .listen(port);
-            LOGGER.info("Server start at: {}", port);
+            LOGGER.info("Server start at: " + port);
         });                   
         
         // The Configuration Retriever periodically retrieves the configuration, 
@@ -72,13 +70,14 @@ public class HttpApplication extends AbstractVerticle {
             // New configuration
             config = change.getNewConfiguration();
             //config = conf;
-            LOGGER.info("New configuration: {}", config.getString("message"));
+            LOGGER.info("New configuration: " + config.getString("message"));
             message = config.getString("message", "Hello, %s");
-            setLogLevel(config.getString("level", "INFO"));
+            //setLogLevel(config.getString("level", "INFO"));
           });
 
     }
 
+    /*
     private void setLogLevel(String level) {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
@@ -86,6 +85,7 @@ public class HttpApplication extends AbstractVerticle {
         loggerConfig.setLevel(Level.getLevel(level));
         ctx.updateLoggers();
     }
+*/
 
     private void greeting(RoutingContext rc) {
         if (message == null) {
@@ -99,7 +99,7 @@ public class HttpApplication extends AbstractVerticle {
             name = "World";
         }
 
-        LOGGER.debug("Replying to request, parameter={}", name);
+        LOGGER.debug("Replying to request, parameter=" + name);
         JsonObject response = new JsonObject()
             .put("content", String.format(message, name));
 

@@ -68,6 +68,8 @@ $ mvn clean fabric8:deploy -Popenshift
 [source,bash,options="nowrap",subs="attributes+"]
 ----
 $ mvn fabric8:undeploy -Popenshift
+$ oc delete bc myvertxconfig-s2i
+$ oc delete is myvertxconfig
 ----
 
 == Interacting with the Booster on a Single-node OpenShift Cluster
