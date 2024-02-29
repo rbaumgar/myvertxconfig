@@ -60,16 +60,15 @@ $ oc create configmap app-config --from-file=app-config.yml
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ mvn clean fabric8:deploy -Popenshift
+$ mvn clean package oc:deploy -Popenshift
 ----
 
 . Undeploy your booster.
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ mvn fabric8:undeploy -Popenshift
-$ oc delete bc myvertxconfig-s2i
-$ oc delete is myvertxconfig
+$ mvn oc:undeploy -Popenshift
+
 ----
 
 == Interacting with the Booster on a Single-node OpenShift Cluster

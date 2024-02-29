@@ -7,5 +7,4 @@ spec:
             limits:
               memory: '100Mi'
           env:
-            - name: JAVA_OPTIONS
       serviceAccount: myvertxconfig-sa

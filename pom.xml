@@ -7,15 +7,15 @@
   </parent>
   <groupId>io.openshift.booster</groupId>
   <artifactId>myvertxconfig</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>4.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>vertx-http-configmap</name>
   <description>Vert.x - HTTP endpoint + Config Map</description>
 
   <properties>
-    <vertx.version>4.4.4</vertx.version>
-    <vertx-maven-plugin.version>1.0.8</vertx-maven-plugin.version>
+    <vertx.version>4.4.8</vertx.version>
+    <vertx-maven-plugin.version>1.0.28</vertx-maven-plugin.version>
     <vertx.verticle>io.openshift.booster.HttpApplication</vertx.verticle>
   </properties>
 
@@ -33,10 +33,10 @@
 
   <dependencies>
     <!-- Vertx -->
-    <dependency>
+<!--    <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web</artifactId>
@@ -66,7 +66,7 @@
       <version>1.7.29</version>
     </dependency>
 
-
+    <!-- Testing -->
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-unit</artifactId>
@@ -107,7 +107,7 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>io.fabric8</groupId>
+        <groupId>io.reactiverse</groupId>
         <artifactId>vertx-maven-plugin</artifactId>
         <version>${vertx-maven-plugin.version}</version>
         <executions>
@@ -131,9 +131,9 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric8-maven-plugin</artifactId>
-            <version>4.4.2</version>
+            <groupId>org.eclipse.jkube</groupId>
+            <artifactId>openshift-maven-plugin</artifactId>
+            <version>1.13.1.redhat-00058</version>
             <executions>
               <execution>
                 <id>fmp</id>
